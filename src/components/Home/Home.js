@@ -4,7 +4,7 @@ import styles from './Home.module.scss'
 
 import Modal from "../Modal/Modal";
 
-const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+// const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const hoursOfDay = Array.from(Array(24).keys());
 
 const Home = () => {
