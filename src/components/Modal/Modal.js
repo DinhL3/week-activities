@@ -10,10 +10,18 @@ const Backdrop = (props) => {
 }
 
 function ModalOverlay(props) {
-    const [eventName, setEventName] = useState(props.eventName || "");
-    const [date, setDate] = useState(props.startDateTime.toISODate());
-    const [startTime, setStartTime] = useState(props.startDateTime.toISOTime().slice(0, 5));
-    const [endTime, setEndTime] = useState(props.startDateTime.plus({ hours: 1 }).toISOTime().slice(0, 5));
+    const [eventName, setEventName] = useState(props.type === 'add' ? "" : props.eventToChange.eventName);
+    const [date, setDate] = useState(props.type === 'add' ? props.startDateTime.toISODate() : props.eventToChange.startDateTime.substring(0, 10));
+    const [startTime, setStartTime] = useState(props.type === 'add' ? props.startDateTime.toISOTime().slice(0, 5) : props.eventToChange.startDateTime.substring(11, 16));
+    const [endTime, setEndTime] = useState(props.type === 'add' ? props.startDateTime.plus({ minutes: 59 }).toISOTime().slice(0, 5) : props.eventToChange.endDateTime.substring(11, 16));
+
+    if (props.type === 'change') {
+        console.log(props.eventToChange);
+        // setDate(event.startDateTime.toISODate());
+        // setStartTime(event.startDateTime.toISOTime().slice(0, 5))
+        // setEndTime(event.endDateTime.toISOTime().slice(0, 5))
+    }
+
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
@@ -21,6 +29,7 @@ function ModalOverlay(props) {
         const startDateTime = DateTime.fromISO(`${date}T${startTime}`);
         const endDateTime = DateTime.fromISO(`${date}T${endTime}`);
         const formValues = {
+            id: props.type === 'add' ? ('000000' + Math.floor(Math.random() * 1000000)).slice(-6) : props.eventId,
             eventName,
             startDateTime: startDateTime.toISO(),
             endDateTime: endDateTime.toISO(),
@@ -31,7 +40,7 @@ function ModalOverlay(props) {
     return (
         <div className={styles.modal}>
             <header className={styles.header}>
-                <h2>Add an activity</h2>
+                <h2>{props.type === 'add' ? 'Add an activity' : 'Change this activity'}</h2>
             </header>
             <div className={styles.content}>
                 <form className={styles.form} onSubmit={handleFormSubmit}>
@@ -53,8 +62,7 @@ function ModalOverlay(props) {
                         <input
                             type="time"
                             min="00:00"
-                            max="24:00"
-                            step="3600"
+                            max="23:59"
                             value={startTime}
                             onChange={(e) => setStartTime(e.target.value)}
                         />
@@ -63,9 +71,8 @@ function ModalOverlay(props) {
                         <label htmlFor="endTime">End time: </label>
                         <input
                             type="time"
-                            min="00:00"
-                            max="24:00"
-                            step="3600"
+                            min="00:01"
+                            max="23:59"
                             value={endTime}
                             onChange={(e) => setEndTime(e.target.value)}
                         />
@@ -81,7 +88,7 @@ const Modal = (props) => {
     return (
         <React.Fragment>
             {ReactDOM.createPortal(<Backdrop onClose={props.onClose} />, document.getElementById('backdrop-root'))}
-            {ReactDOM.createPortal(<ModalOverlay startDateTime={props.startDateTime} onConfirm={props.onConfirm} />, document.getElementById('overlay-root'))}
+            {ReactDOM.createPortal(<ModalOverlay type={props.type} eventToChange={props.eventToChange} startDateTime={props.startDateTime} onConfirm={props.onConfirm} />, document.getElementById('overlay-root'))}
         </React.Fragment>
     );
 };

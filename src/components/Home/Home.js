@@ -8,26 +8,42 @@ const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const hoursOfDay = Array.from(Array(24).keys());
 
 const Home = () => {
-    const [selectedStartDateTime, setSelectedStartDateTime] = useState(null);
-    const [isOpen, setOpen] = useState(false);
+    const [startDateTime, setStartDateTime] = useState(null);
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [modalType, setModalType] = useState("");
     const [events, setEvents] = useState([]);
+    const [eventToChange, setEventToChange] = useState(null);
 
 
-    const handleCellClick = (startDateTime) => {
-        setSelectedStartDateTime(startDateTime);
-        setOpen(true);
+    const handleEmptyCellClick = (startDateTime) => {
+        setStartDateTime(startDateTime);
+        setModalType('add')
+        setModalOpen(true);
     };
 
+    const handleBookedCellClick = (eventId) => {
+        const eventToChange = events.find((event) => event.id === eventId);
+        setEventToChange(eventToChange)
+        setModalType('change')
+        setModalOpen(true);
+    }
+
     const handleCloseModal = () => {
-        setSelectedStartDateTime(null);
-        setOpen(false);
+        setStartDateTime(null);
+        setModalOpen(false);
     };
 
     const handleFormSubmit = (formValues) => {
-        const newEvent = { ...formValues, id: ('000000' + Math.floor(Math.random() * 1000000)).slice(-6) };
+        const newEvent = { ...formValues };
         setEvents([...events, newEvent]);
-        setOpen(false);
+        setModalOpen(false);
     }
+
+    const handleChangeFormSubmit = (formValues) => {
+        console.log(events);
+        setModalOpen(false);
+    }
+
 
     const renderCells = () => {
         let currentWeek = [];
@@ -54,14 +70,15 @@ const Home = () => {
                     if (eventIndex > -1) {
                         if (events[eventIndex].id === previousBookedEventId) {
                             previousBookedEventId = events[eventIndex].id;
-                            return <td key={startDateTime} className={styles.booked}></td>;
+                            return <td key={startDateTime} className={styles.booked} onClick={() => handleBookedCellClick(events[eventIndex].id)}></td>;
                         } else {
                             previousBookedEventId = events[eventIndex].id;
-                            return <td key={startDateTime} className={styles.booked}><span>{events[eventIndex].eventName}</span></td>;
+                            return <td key={startDateTime} className={styles.booked} onClick={() => handleBookedCellClick(events[eventIndex].id)}>
+                                <span>{events[eventIndex].eventName}</span></td>;
                         }
                     } else {
                         return (
-                            <td key={startDateTime} className={styles.free} onClick={() => handleCellClick(startDateTime)}>
+                            <td key={startDateTime} className={styles.free} onClick={() => handleEmptyCellClick(startDateTime)}>
                                 {/* <button onClick={() => handleCellClick(startDateTime)}>
                                     Add
                                 </button> */}
@@ -73,18 +90,35 @@ const Home = () => {
         ));
     };
 
-    // useEffect(() => {
-    //     console.log(events);
-    // }, [events]);
+    const renderModal = () => {
+        if (isModalOpen && modalType === 'add') {
+            return (
+                <Modal
+                    type="add"
+                    startDateTime={startDateTime}
+                    onClose={handleCloseModal}
+                    onConfirm={handleFormSubmit}
+                />
+            )
+        }
+        if (isModalOpen && modalType === 'change') {
+            return (
+                <Modal
+                    type="change"
+                    eventToChange={eventToChange}
+                    onClose={handleCloseModal}
+                    onConfirm={handleChangeFormSubmit}
+                />
+            )
+        }
+    }
+
+    useEffect(() => {
+        console.log(events);;
+    }, [events]);
 
     return (<React.Fragment>
-        {isOpen && (
-            <Modal
-                startDateTime={selectedStartDateTime}
-                onClose={handleCloseModal}
-                onConfirm={handleFormSubmit}
-            />
-        )}
+        {renderModal()}
         <h1>My activities this week</h1>
         <table className={styles.table}>
             <thead>
