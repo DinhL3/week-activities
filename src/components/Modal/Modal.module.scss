@@ -46,6 +46,27 @@
     }
 }
 
+.submit-button {
+    text-align: center;
+    font: inherit;
+    font-weight: 600;
+    padding: 0rem 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 30px;
+    height: 2.5rem;
+    border: 1px solid colors.$dark-pink-1;
+    background: colors.$dark-pink-1;
+    color: white;
+    margin-bottom: 1rem;
+
+    &:hover,
+    &:active {
+        background: colors.$dark-pink-2;
+        border-color: colors.$dark-pink-2;
+    }
+}
+
 @media (min-width: 768px) {
     .modal {
         left: calc(50% - 20rem);

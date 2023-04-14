@@ -40,10 +40,31 @@ const Home = () => {
     }
 
     const handleChangeFormSubmit = (formValues) => {
-        console.log(events);
+        console.log(formValues);
+        const updatedEvents = events.map((event) => {
+            if (event.id === formValues.id) {
+                // update event with formValues
+                return {
+                    ...event,
+                    eventName: formValues.eventName,
+                    startDateTime: formValues.startDateTime,
+                    endDateTime: formValues.endDateTime
+                };
+            } else {
+                // leave other events unchanged
+                return event;
+            }
+        });
+
+        setEvents(updatedEvents);
         setModalOpen(false);
     }
 
+    const handleDeleteEvent = (eventId) => {
+        const updatedEvents = events.filter((event) => event.id !== eventId);
+        setEvents(updatedEvents);
+        setModalOpen(false);
+    }
 
     const renderCells = () => {
         let currentWeek = [];
@@ -108,6 +129,7 @@ const Home = () => {
                     eventToChange={eventToChange}
                     onClose={handleCloseModal}
                     onConfirm={handleChangeFormSubmit}
+                    onDelete={handleDeleteEvent}
                 />
             )
         }

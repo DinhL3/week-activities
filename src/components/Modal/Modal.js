@@ -15,27 +15,23 @@ function ModalOverlay(props) {
     const [startTime, setStartTime] = useState(props.type === 'add' ? props.startDateTime.toISOTime().slice(0, 5) : props.eventToChange.startDateTime.substring(11, 16));
     const [endTime, setEndTime] = useState(props.type === 'add' ? props.startDateTime.plus({ minutes: 59 }).toISOTime().slice(0, 5) : props.eventToChange.endDateTime.substring(11, 16));
 
-    if (props.type === 'change') {
-        console.log(props.eventToChange);
-        // setDate(event.startDateTime.toISODate());
-        // setStartTime(event.startDateTime.toISOTime().slice(0, 5))
-        // setEndTime(event.endDateTime.toISOTime().slice(0, 5))
-    }
-
-
     const handleFormSubmit = (e) => {
         e.preventDefault();
 
         const startDateTime = DateTime.fromISO(`${date}T${startTime}`);
         const endDateTime = DateTime.fromISO(`${date}T${endTime}`);
         const formValues = {
-            id: props.type === 'add' ? ('000000' + Math.floor(Math.random() * 1000000)).slice(-6) : props.eventId,
+            id: props.type === 'add' ? ('000000' + Math.floor(Math.random() * 1000000)).slice(-6) : props.eventToChange.id,
             eventName,
             startDateTime: startDateTime.toISO(),
             endDateTime: endDateTime.toISO(),
         };
         props.onConfirm(formValues);
     };
+
+    const handleDeleteButton = () => {
+        props.onDelete(props.eventToChange.id);
+    }
 
     return (
         <div className={styles.modal}>
@@ -77,8 +73,9 @@ function ModalOverlay(props) {
                             onChange={(e) => setEndTime(e.target.value)}
                         />
                     </div>
-                    <button type="submit">Submit</button>
+                    <button className={styles['submit-button']} type="submit">Submit</button>
                 </form>
+                {props.type === 'change' && <button className={styles['delete-button']} type="button" onClick={handleDeleteButton}>Delete activity</button>}
             </div>
         </div>
     )
@@ -88,7 +85,7 @@ const Modal = (props) => {
     return (
         <React.Fragment>
             {ReactDOM.createPortal(<Backdrop onClose={props.onClose} />, document.getElementById('backdrop-root'))}
-            {ReactDOM.createPortal(<ModalOverlay type={props.type} eventToChange={props.eventToChange} startDateTime={props.startDateTime} onConfirm={props.onConfirm} />, document.getElementById('overlay-root'))}
+            {ReactDOM.createPortal(<ModalOverlay type={props.type} eventToChange={props.eventToChange} startDateTime={props.startDateTime} onConfirm={props.onConfirm} onDelete={props.onDelete} />, document.getElementById('overlay-root'))}
         </React.Fragment>
     );
 };
