@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DateTime } from "luxon";
 import styles from './Home.module.scss'
 
@@ -24,14 +24,14 @@ const Home = () => {
     };
 
     const handleFormSubmit = (formValues) => {
-        setEvents([...events, formValues]);
-        console.log(events);
+        const newEvent = { ...formValues, id: ('000000' + Math.floor(Math.random() * 1000000)).slice(-6) };
+        setEvents([...events, newEvent]);
         setOpen(false);
     }
 
     const renderCells = () => {
-
         let currentWeek = [];
+        let previousBookedEventId = "";
 
         for (let i = 0; i < 7; i++) {
             currentWeek.push(DateTime.now().startOf("day").plus({ days: i }));
@@ -39,26 +39,32 @@ const Home = () => {
 
         return currentWeek.map((date) => (
             <tr key={date}>
-                <td>{date.toLocaleString({ month: 'short', day: 'numeric', weekday: 'short' })}</td>
+                <td className={styles.dates}>{date.toLocaleString({ month: 'short', day: 'numeric', weekday: 'short' })}</td>
                 {hoursOfDay.map((hour) => {
                     const startDateTime = date.plus({ hours: hour });
                     const endDateTime = date.plus({ hours: hour + 1 });
 
                     // Check if an event exists during the time period of this cell
-                    const hasEvent = events.some((event) => {
+                    const eventIndex = events.findIndex((event) => {
                         const eventStart = DateTime.fromISO(event.startDateTime);
                         const eventEnd = DateTime.fromISO(event.endDateTime);
                         return eventStart < endDateTime && eventEnd > startDateTime;
                     });
 
-                    if (hasEvent) {
-                        return <td key={startDateTime}>Booked</td>; // Render empty cell
+                    if (eventIndex > -1) {
+                        if (events[eventIndex].id === previousBookedEventId) {
+                            previousBookedEventId = events[eventIndex].id;
+                            return <td key={startDateTime} className={styles.booked}></td>;
+                        } else {
+                            previousBookedEventId = events[eventIndex].id;
+                            return <td key={startDateTime} className={styles.booked}><span>{events[eventIndex].eventName}</span></td>;
+                        }
                     } else {
                         return (
-                            <td key={startDateTime}>
-                                <button onClick={() => handleCellClick(startDateTime)}>
+                            <td key={startDateTime} className={styles.free} onClick={() => handleCellClick(startDateTime)}>
+                                {/* <button onClick={() => handleCellClick(startDateTime)}>
                                     Add
-                                </button>
+                                </button> */}
                             </td>
                         );
                     }
@@ -66,6 +72,10 @@ const Home = () => {
             </tr>
         ));
     };
+
+    // useEffect(() => {
+    //     console.log(events);
+    // }, [events]);
 
     return (<React.Fragment>
         {isOpen && (

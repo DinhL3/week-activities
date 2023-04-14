@@ -10,7 +10,7 @@ const Backdrop = (props) => {
 }
 
 function ModalOverlay(props) {
-    const [eventName, setEventName] = useState("");
+    const [eventName, setEventName] = useState(props.eventName || "");
     const [date, setDate] = useState(props.startDateTime.toISODate());
     const [startTime, setStartTime] = useState(props.startDateTime.toISOTime().slice(0, 5));
     const [endTime, setEndTime] = useState(props.startDateTime.plus({ hours: 1 }).toISOTime().slice(0, 5));

@@ -3,12 +3,40 @@
 .table {
     border-collapse: collapse;
     border: 1px solid colors.$dark-pink-1;
-
+    width: 100%;
 
     td {
         text-align: left;
         padding: 0.5rem;
-        border: 1px solid colors.$dark-pink-1;
+        border: 1px solid colors.$light-pink-1;
+        position: relative;
+
+        &.dates {
+            max-width: 2.5rem;
+        }
+
+        &.booked {
+            cursor: pointer;
+            background-color: colors.$dark-pink-2;
+            color: white;
+            font-size: 0.8rem;
+            white-space: nowrap;
+
+            span {
+                position: absolute;
+                z-index: 1;
+                top: 0;
+            }
+        }
+
+        &.free {
+            cursor: pointer;
+            color: white;
+
+            &:hover {
+                background-color: colors.$light-pink-3;
+            }
+        }
 
         button {
             border: none;
