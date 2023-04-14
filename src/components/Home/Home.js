@@ -9,8 +9,8 @@ const hoursOfDay = Array.from(Array(24).keys());
 
 const Home = () => {
     const [selectedStartDateTime, setSelectedStartDateTime] = useState(null);
-    const [events, setEvents] = useState([]);
     const [isOpen, setOpen] = useState(false);
+    const [events, setEvents] = useState([]);
 
 
     const handleCellClick = (startDateTime) => {
@@ -23,7 +23,9 @@ const Home = () => {
         setOpen(false);
     };
 
-    const handleFormSubmit = () => {
+    const handleFormSubmit = (formValues) => {
+        setEvents([...events, formValues]);
+        console.log(events);
         setOpen(false);
     }
 
@@ -38,13 +40,29 @@ const Home = () => {
         return currentWeek.map((date) => (
             <tr key={date}>
                 <td>{date.toLocaleString({ month: 'short', day: 'numeric', weekday: 'short' })}</td>
-                {hoursOfDay.map((hour) => (
-                    <td key={date.plus({ hours: hour })}>
-                        <button onClick={() => handleCellClick(date.plus({ hours: hour }))}>
-                            Add
-                        </button>
-                    </td>
-                ))}
+                {hoursOfDay.map((hour) => {
+                    const startDateTime = date.plus({ hours: hour });
+                    const endDateTime = date.plus({ hours: hour + 1 });
+
+                    // Check if an event exists during the time period of this cell
+                    const hasEvent = events.some((event) => {
+                        const eventStart = DateTime.fromISO(event.startDateTime);
+                        const eventEnd = DateTime.fromISO(event.endDateTime);
+                        return eventStart < endDateTime && eventEnd > startDateTime;
+                    });
+
+                    if (hasEvent) {
+                        return <td key={startDateTime}>Booked</td>; // Render empty cell
+                    } else {
+                        return (
+                            <td key={startDateTime}>
+                                <button onClick={() => handleCellClick(startDateTime)}>
+                                    Add
+                                </button>
+                            </td>
+                        );
+                    }
+                })}
             </tr>
         ));
     };

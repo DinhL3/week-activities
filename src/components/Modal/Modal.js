@@ -15,20 +15,33 @@ function ModalOverlay(props) {
     const [startTime, setStartTime] = useState(props.startDateTime.toISOTime().slice(0, 5));
     const [endTime, setEndTime] = useState(props.startDateTime.plus({ hours: 1 }).toISOTime().slice(0, 5));
 
+    const handleFormSubmit = (e) => {
+        e.preventDefault();
+
+        const startDateTime = DateTime.fromISO(`${date}T${startTime}`);
+        const endDateTime = DateTime.fromISO(`${date}T${endTime}`);
+        const formValues = {
+            eventName,
+            startDateTime: startDateTime.toISO(),
+            endDateTime: endDateTime.toISO(),
+        };
+        props.onConfirm(formValues);
+    };
+
     return (
         <div className={styles.modal}>
             <header className={styles.header}>
                 <h2>Add an activity</h2>
             </header>
             <div className={styles.content}>
-                <form className={styles.form}>
+                <form className={styles.form} onSubmit={handleFormSubmit}>
                     <div className={styles['input-group']}>
-                        <label for="name">Event name: </label>
+                        <label htmlFor="name">Event name: </label>
                         <input type="text" id="name" value={eventName}
-                            onChange={(e) => setEventName(e.target.value)} />
+                            onChange={(e) => setEventName(e.target.value)} required />
                     </div>
                     <div className={styles['input-group']}>
-                        <label for="date">Date: </label>
+                        <label htmlFor="date">Date: </label>
                         <input
                             type="date"
                             value={date}
@@ -36,7 +49,7 @@ function ModalOverlay(props) {
                         />
                     </div>
                     <div className={styles['input-group']}>
-                        <label for="startTime">Start time: </label>
+                        <label htmlFor="startTime">Start time: </label>
                         <input
                             type="time"
                             min="00:00"
@@ -47,7 +60,7 @@ function ModalOverlay(props) {
                         />
                     </div>
                     <div className={styles['input-group']}>
-                        <label for="endTime">End time: </label>
+                        <label htmlFor="endTime">End time: </label>
                         <input
                             type="time"
                             min="00:00"
@@ -57,11 +70,9 @@ function ModalOverlay(props) {
                             onChange={(e) => setEndTime(e.target.value)}
                         />
                     </div>
+                    <button type="submit">Submit</button>
                 </form>
             </div>
-            <footer className={styles.actions}>
-                <button onClick={props.onConfirm}>Submit</button>
-            </footer>
         </div>
     )
 }
